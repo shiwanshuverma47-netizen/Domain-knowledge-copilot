@@ -6,6 +6,15 @@ import os
 
 load_dotenv()
 
+groq_api_key = os.getenv(
+    "GROQ_API_KEY"
+)
+
+# Create Groq client
+client_groq = Groq(
+    api_key=groq_api_key
+)
+
 # -----------------------------------
 # ChromaDB Client
 # -----------------------------------
@@ -90,18 +99,17 @@ def store_document_in_chroma(
     )
 
     return len(chunks)
-
 # -----------------------------------
 # Ask Question
 # -----------------------------------
 def ask_question(question):
 
-    # Create query embedding locally
+    # Create query embedding
     query_embedding = embedding_model.encode(
         [question]
     ).tolist()
 
-    # Search similar chunks
+    # Search top chunks
     results = collection.query(
         query_embeddings=query_embedding,
         n_results=3
@@ -111,12 +119,18 @@ def ask_question(question):
         "documents"
     ][0]
 
+    # Best chunk for citation
+    best_chunk = retrieved_chunks[0]
+
+    # Context for LLM
     context = "\n".join(
         retrieved_chunks
     )
 
     prompt = f"""
-    Answer only from the context.
+    You are a helpful AI assistant.
+
+    Answer ONLY from the given context.
 
     Context:
     {context}
@@ -124,12 +138,16 @@ def ask_question(question):
     Question:
     {question}
 
-    If answer is not in context,
-    say: I could not find this in the document.
+    Rules:
+    - Give a clear answer.
+    - If answer is not present,
+      say:
+      'I could not find this
+      in the document.'
     """
 
     response = client_groq.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="llama-3.1-8b-instant",
         messages=[
             {
                 "role": "user",
@@ -144,5 +162,5 @@ def ask_question(question):
 
     return {
         "answer": answer,
-        "source": retrieved_chunks[0]
+        "citation": best_chunk
     }

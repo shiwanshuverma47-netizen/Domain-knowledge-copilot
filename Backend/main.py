@@ -190,7 +190,7 @@ def chat(
     )
 
     return {
-        "question": chat_request.question,
-        "answer": response["answer"],
-        "source": response["source"]
-    }
+    "question": chat_request.question,
+    "answer": response["answer"],
+    "citation": response["citation"]
+}

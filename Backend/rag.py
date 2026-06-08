@@ -128,23 +128,23 @@ def ask_question(question):
     )
 
     prompt = f"""
-    You are a helpful AI assistant.
+       You are an AI assistant for document question answering.
 
-    Answer ONLY from the given context.
+       Your task:
+        - Answer ONLY using the provided document context.
+        - Do NOT make up information.
+        - Keep answers short, clear, and accurate.
+        - If the answer is not present in the document, say:
+     'I could not find this in the document.'
 
-    Context:
-    {context}
+       Document Context:
+       {context}
 
-    Question:
-    {question}
+       User Question:
+       {question}
 
-    Rules:
-    - Give a clear answer.
-    - If answer is not present,
-      say:
-      'I could not find this
-      in the document.'
-    """
+       Answer:
+       """
 
     response = client_groq.chat.completions.create(
         model="llama-3.1-8b-instant",

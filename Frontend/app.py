@@ -352,10 +352,16 @@ if question:
         result = response.json()
 
         st.session_state.messages.append({
-            "role": "assistant",
-            "content": result["answer"],
-            "citation": result["citation"]
-        })
+       "role": "assistant",
+       "content": result.get(
+        "answer",
+        "No answer found"
+        ),
+        "citation": result.get(
+        "citation",
+        result.get("source", "")
+        )
+    })
 
     except requests.exceptions.ConnectionError:
         st.session_state.messages.append({

@@ -5,9 +5,9 @@ import requests
 st.set_page_config(
     page_title="Domain Knowledge Co-Pilot",
     page_icon="🤖",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
-
 # ─── CSS ────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
@@ -25,8 +25,12 @@ header    { visibility: hidden; }
 
 /* ── Sidebar ── */
 section[data-testid="stSidebar"] {
-    background-color: white;
-    border-right: 1px solid #E5E7EB;
+    background-color: white !important;
+    border-right: 1px solid #E5E7EB !important;
+    min-width: 320px !important;
+    max-width: 320px !important;
+    display: block !important;
+    visibility: visible !important;
 }
 
 /* ── File uploader ── */
@@ -212,6 +216,7 @@ if "pdf_name" not in st.session_state:
 BACKEND = "http://127.0.0.1:8000"
 
 # ─── Sidebar ─────────────────────────────────────────────────────────────────
+st.sidebar.empty()
 with st.sidebar:
 
     st.markdown("""
@@ -337,7 +342,6 @@ question = st.chat_input(
 )
 
 if question:
-
     st.session_state.messages.append({
         "role": "user",
         "content": question
@@ -346,22 +350,29 @@ if question:
     try:
         response = requests.post(
             f"{BACKEND}/chat",
-            json={"question": question},
+            json={
+                "question": question
+            },
             timeout=60
         )
+
+        # Debug check
+        print(response.status_code)
+        print(response.text)
+
         result = response.json()
 
         st.session_state.messages.append({
-       "role": "assistant",
-       "content": result.get(
-        "answer",
-        "No answer found"
-        ),
-        "citation": result.get(
-        "citation",
-        result.get("source", "")
-        )
-    })
+            "role": "assistant",
+            "content": result.get(
+                "answer",
+                "No answer found"
+            ),
+            "citation": result.get(
+                "citation",
+                result.get("source", "")
+            )
+        })
 
     except requests.exceptions.ConnectionError:
         st.session_state.messages.append({
@@ -369,6 +380,7 @@ if question:
             "content": "⚠️ Could not connect to backend. Make sure FastAPI is running on port 8000.",
             "citation": ""
         })
+
     except Exception as e:
         st.session_state.messages.append({
             "role": "assistant",
@@ -376,7 +388,9 @@ if question:
             "citation": ""
         })
 
-    st.rerun()
+    #st.rerun()
+
+
 
 # ─── Chat Messages — exact logic from old code ────────────────────────────────
 for message in st.session_state.messages:

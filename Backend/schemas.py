@@ -45,6 +45,7 @@ class DocumentResponse(BaseModel):
 # -----------------------------
 class ChatRequest(BaseModel):
     question: str
+    chat_history: Optional[list] = []
 
 
 class ChatResponse(BaseModel):

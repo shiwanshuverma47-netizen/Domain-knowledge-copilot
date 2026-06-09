@@ -186,7 +186,8 @@ def chat(
     chat_request: ChatRequest
 ):
     response = ask_question(
-        chat_request.question
+        chat_request.question,
+        chat_request.chat_history
     )
 
     return {

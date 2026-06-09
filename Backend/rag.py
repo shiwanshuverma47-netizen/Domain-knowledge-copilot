@@ -102,7 +102,10 @@ def store_document_in_chroma(
 # -----------------------------------
 # Ask Question
 # -----------------------------------
-def ask_question(question):
+def ask_question(
+    question,
+    chat_history=[]
+):
 
     # Create query embedding
     query_embedding = embedding_model.encode(
@@ -126,25 +129,48 @@ def ask_question(question):
     context = "\n".join(
         retrieved_chunks
     )
+    history_text = ""
 
+    for chat in chat_history:
+
+        if "question" in chat:
+            history_text += (
+               f"User: {chat['question']}\n"
+        )
+
+        if "answer" in chat:
+           history_text += (
+               f"Assistant: {chat['answer']}\n"
+        )
+    
     prompt = f"""
-       You are an AI assistant for document question answering.
+       You are an intelligent AI assistant.
 
-       Your task:
+       Your job:
         - Answer ONLY using the provided document context.
-        - Do NOT make up information.
-        - Keep answers short, clear, and accurate.
-        - If the answer is not present in the document, say:
-     'I could not find this in the document.'
+        - Also understand previous conversations.
+        - If user says:
+           "explain simply"
+           "summarize"
+           "short answer"
+          then use previous answer.
+
+       Previous Conversation:
+       {history_text}
 
        Document Context:
        {context}
 
-       User Question:
+       Current Question:
        {question}
 
-       Answer:
-       """
+       Rules:
+       - Be helpful and conversational.
+       - Keep answer clear.
+       - Do not hallucinate.
+       - If not found in document say:
+       'I could not find this in the document.'
+    """
 
     response = client_groq.chat.completions.create(
         model="llama-3.1-8b-instant",

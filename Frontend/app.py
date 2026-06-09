@@ -351,10 +351,20 @@ if question:
         response = requests.post(
             f"{BACKEND}/chat",
             json={
-                "question": question
-            },
-            timeout=60
-        )
+                "question": question,
+                "chat_history": [
+            {
+                "question": m["content"]
+            }
+            if m["role"] == "user"
+            else {
+                "answer": m["content"]
+            }
+            for m in st.session_state.messages
+        ]
+    },
+    timeout=60
+)
 
         # Debug check
         print(response.status_code)
@@ -388,7 +398,7 @@ if question:
             "citation": ""
         })
 
-    #st.rerun()
+    st.rerun()
 
 
 

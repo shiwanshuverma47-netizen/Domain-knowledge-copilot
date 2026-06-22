@@ -1,7 +1,0 @@
-.env
-__pycache__/
-*.pyc
-app.db
-chroma_db/
-uploads/
-.venv/

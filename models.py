@@ -87,7 +87,7 @@ class ChatHistory(Base):
         Integer,
         ForeignKey("users.id")
     )
-
+    
     document_id = Column(
         Integer,
         ForeignKey("documents.id")

@@ -6,38 +6,29 @@ import os
 
 load_dotenv()
 
-groq_api_key = os.getenv(
-    "GROQ_API_KEY"
-)
+groq_api_key = os.getenv("GROQ_API_KEY")
+if not groq_api_key:
+    raise RuntimeError(
+        "GROQ_API_KEY must be set in the environment"
+    )
 
 # Create Groq client
-client_groq = Groq(
-    api_key=groq_api_key
-)
+client_groq = Groq(api_key=groq_api_key)
 
 # -----------------------------------
 # ChromaDB Client
 # -----------------------------------
+CHROMA_DB_PATH = os.path.join(
+    os.path.dirname(__file__),
+    "chroma_db"
+)
+
 client = chromadb.PersistentClient(
-    path="chroma_DB"
+    path=CHROMA_DB_PATH
 )
 
 collection = client.get_or_create_collection(
     name="documents"
-)
-
-
-# -----------------------------------
-# Load Environment Variables
-# -----------------------------------
-load_dotenv()
-
-groq_api_key = os.getenv(
-    "GROQ_API_KEY"
-)
-
-client_groq = Groq(
-    api_key=groq_api_key
 )
 
 # -----------------------------------
@@ -127,8 +118,10 @@ def store_document_in_chroma(
 # -----------------------------------
 def ask_question(
     question,
-    chat_history=[]
+    chat_history=None
 ):
+    if chat_history is None:
+        chat_history = []
 
     # Create query embedding
     query_embedding = embedding_model.encode(
@@ -141,9 +134,12 @@ def ask_question(
         n_results=3
     )
 
-    retrieved_chunks = results[
-        "documents"
-    ][0]
+    retrieved_chunks = results.get("documents", [[]])[0]
+    if not retrieved_chunks:
+        return {
+            "answer": "I could not find this in the document.",
+            "citation": ""
+        }
 
     # Best chunk for citation
     best_chunk = retrieved_chunks[0]

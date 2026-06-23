@@ -205,6 +205,7 @@ def ask_question(
         ]
     )
 
+
     answer = response.choices[
         0
     ].message.content

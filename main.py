@@ -185,13 +185,13 @@ async def upload_pdf(
 # -----------------------------------
 # Delete old uploaded files
 # -----------------------------------
-if os.path.exists(UPLOAD_FOLDER):
-    shutil.rmtree(UPLOAD_FOLDER)
+#if os.path.exists(UPLOAD_FOLDER):
+ #   shutil.rmtree(UPLOAD_FOLDER)
 
-os.makedirs(
-    UPLOAD_FOLDER,
-    exist_ok=True
-)
+#os.makedirs(
+ #   UPLOAD_FOLDER,
+ #   exist_ok=True
+#)
 
 # -----------------------------------
 # Clear old Chroma collection
